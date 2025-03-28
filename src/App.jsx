@@ -1,12 +1,22 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import Home from './pages/Home'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
+import Events from './pages/Events'
+import Promoters from './pages/Promoters'
+import HowItWorks from './pages/HowItWorks'
 import DashboardOrganizer from './pages/dashboard/DashboardOrganizer'
 import DashboardPromoter from './pages/dashboard/DashboardPromoter'
+import OrganizerProfile from './pages/dashboard/organizer/Profile'
+import OrganizerAnalytics from './pages/dashboard/organizer/Analytics'
+import OrganizerSettings from './pages/dashboard/organizer/Settings'
+import PromoterTasks from './pages/dashboard/promoter/Tasks'
+import PromoterProfile from './pages/dashboard/promoter/Profile'
+import PromoterSettings from './pages/dashboard/promoter/Settings'
 
 const theme = extendTheme({
   colors: {
@@ -27,23 +37,54 @@ const theme = extendTheme({
     heading: 'Inter, sans-serif',
     body: 'Inter, sans-serif',
   },
+  styles: {
+    global: {
+      'html, body': {
+        scrollBehavior: 'smooth',
+      },
+      '#root': {
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      },
+      'main': {
+        flex: '1 0 auto',
+        paddingTop: '64px',
+      },
+    },
+  },
 })
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
       <Router>
-        <div className="app">
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Navbar />
-          <main className="container">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard/organizer" element={<DashboardOrganizer />} />
-              <Route path="/dashboard/promoter" element={<DashboardPromoter />} />
-            </Routes>
-          </main>
+          <AnimatePresence mode="wait">
+            <main style={{ flex: 1, width: '100%', paddingTop: '64px' }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/eventos" element={<Events />} />
+                <Route path="/divulgadores" element={<Promoters />} />
+                <Route path="/como-funciona" element={<HowItWorks />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                {/* Rotas do Organizador */}
+                <Route path="/dashboard/organizer" element={<DashboardOrganizer />} />
+                <Route path="/dashboard/organizer/profile" element={<OrganizerProfile />} />
+                <Route path="/dashboard/organizer/analytics" element={<OrganizerAnalytics />} />
+                <Route path="/dashboard/organizer/settings" element={<OrganizerSettings />} />
+                
+                {/* Rotas do Divulgador */}
+                <Route path="/dashboard/promoter" element={<DashboardPromoter />} />
+                <Route path="/dashboard/promoter/tasks" element={<PromoterTasks />} />
+                <Route path="/dashboard/promoter/profile" element={<PromoterProfile />} />
+                <Route path="/dashboard/promoter/settings" element={<PromoterSettings />} />
+              </Routes>
+            </main>
+          </AnimatePresence>
           <Footer />
         </div>
       </Router>
