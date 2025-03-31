@@ -19,9 +19,11 @@ import {
   Divider,
   Badge,
   Collapse,
+  Portal,
 } from '@chakra-ui/react'
 import { HamburgerIcon, CloseIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 
 const MotionBox = motion(Box)
 
@@ -42,15 +44,38 @@ const useAuth = () => {
 }
 
 function Navbar() {
-  const { isOpen, onToggle } = useDisclosure()
+  const { isOpen, onToggle, onClose } = useDisclosure()
   const location = useLocation()
   const { isAuthenticated, userType, user } = useAuth()
+  const menuRef = useRef()
   
   const bgColor = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(26, 32, 44, 0.8)')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const textColor = useColorModeValue('gray.700', 'gray.200')
   const activeColor = useColorModeValue('blue.500', 'blue.300')
   const buttonHoverBg = useColorModeValue('gray.50', 'gray.700')
+
+  useEffect(() => {
+    // Fecha o menu ao mudar de rota
+    onClose()
+  }, [location, onClose])
+
+  useEffect(() => {
+    // Fecha o menu ao clicar fora dele
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [onClose])
 
   const isActive = (path) => location.pathname === path
 
@@ -70,6 +95,7 @@ function Navbar() {
         color: activeColor,
         bg: buttonHoverBg,
       }}
+      onClick={onClose}
     >
       {children}
       {isActive(to) && (
@@ -196,18 +222,20 @@ function Navbar() {
                       </Text>
                     </HStack>
                   </MenuButton>
-                  <MenuList>
-                    <MenuItem as={RouterLink} to={`/dashboard/${userType}/profile`}>
-                      Meu Perfil
-                    </MenuItem>
-                    <MenuItem as={RouterLink} to={`/dashboard/${userType}/settings`}>
-                      Configurações
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem as={RouterLink} to="/login">
-                      Sair
-                    </MenuItem>
-                  </MenuList>
+                  <Portal>
+                    <MenuList>
+                      <MenuItem as={RouterLink} to={`/dashboard/${userType}/profile`}>
+                        Meu Perfil
+                      </MenuItem>
+                      <MenuItem as={RouterLink} to={`/dashboard/${userType}/settings`}>
+                        Configurações
+                      </MenuItem>
+                      <Divider />
+                      <MenuItem as={RouterLink} to="/login">
+                        Sair
+                      </MenuItem>
+                    </MenuList>
+                  </Portal>
                 </Menu>
               </HStack>
             ) : (
@@ -249,37 +277,40 @@ function Navbar() {
           </Flex>
         </Flex>
 
-        <Collapse in={isOpen} animateOpacity>
-          <MotionBox
-            pb={4}
-            display={{ md: 'none' }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Stack as="nav" spacing={1}>
-              {getNavLinks()}
-              {!isAuthenticated && (
-                <>
-                  <Divider my={2} />
-                  <NavLink to="/login">Login</NavLink>
-                  <Button
-                    as={RouterLink}
-                    to="/register"
-                    colorScheme="blue"
-                    w="full"
-                    size="md"
-                    fontWeight="500"
-                    mt={2}
-                  >
-                    Começar Agora
-                  </Button>
-                </>
-              )}
-            </Stack>
-          </MotionBox>
-        </Collapse>
+        <Box ref={menuRef}>
+          <Collapse in={isOpen} animateOpacity>
+            <MotionBox
+              pb={4}
+              display={{ md: 'none' }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Stack as="nav" spacing={1}>
+                {getNavLinks()}
+                {!isAuthenticated && (
+                  <>
+                    <Divider my={2} />
+                    <NavLink to="/login">Login</NavLink>
+                    <Button
+                      as={RouterLink}
+                      to="/register"
+                      colorScheme="blue"
+                      w="full"
+                      size="md"
+                      fontWeight="500"
+                      mt={2}
+                      onClick={onClose}
+                    >
+                      Começar Agora
+                    </Button>
+                  </>
+                )}
+              </Stack>
+            </MotionBox>
+          </Collapse>
+        </Box>
       </Container>
     </Box>
   )

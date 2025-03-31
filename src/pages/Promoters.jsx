@@ -25,8 +25,11 @@ import {
   StatLabel,
   StatNumber,
   StatGroup,
+  Stack,
+  InputGroup,
+  InputLeftElement,
 } from '@chakra-ui/react'
-import { FaStar } from 'react-icons/fa'
+import { FaStar, FaSearch } from 'react-icons/fa'
 import PageTransition from '../components/layout/PageTransition'
 
 function PromoterModal({ isOpen, onClose, promoter }) {
@@ -246,11 +249,6 @@ function Promoters() {
     onOpen()
   }
 
-  const handleSearch = () => {
-    // The search is already handled by the useEffect above
-    // This function is here for the search button click handler
-  }
-
   return (
     <PageTransition>
       <Box py={8}>
@@ -259,25 +257,31 @@ function Promoters() {
             <Heading>Divulgadores</Heading>
             
             <Box bg={bgColor} p={6} borderRadius="lg" border="1px" borderColor={borderColor}>
-              <HStack spacing={4}>
-                <Input
-                  placeholder="Buscar divulgadores..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+              <Stack
+                direction={{ base: 'column', md: 'row' }}
+                spacing={{ base: 4, md: 4 }}
+                w="100%"
+              >
+                <InputGroup flex="1">
+                  <InputLeftElement pointerEvents="none">
+                    <FaSearch color="gray.300" />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Buscar divulgadores..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
                 <Select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  minW="200px"
+                  minW={{ base: "100%", md: "200px" }}
                 >
                   <option value="all">Todos</option>
                   <option value="most_active">Mais ativos</option>
                   <option value="best_rated">Melhor avaliados</option>
                 </Select>
-                <Button colorScheme="blue" px={8} onClick={handleSearch}>
-                  Buscar
-                </Button>
-              </HStack>
+              </Stack>
             </Box>
 
             {filteredPromoters.length > 0 ? (
