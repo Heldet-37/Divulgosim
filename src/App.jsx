@@ -1,4 +1,4 @@
-import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme, ColorModeScript } from '@chakra-ui/react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/layout/Navbar'
@@ -14,11 +14,16 @@ import DashboardPromoter from './pages/dashboard/DashboardPromoter'
 import OrganizerProfile from './pages/dashboard/organizer/Profile'
 import OrganizerAnalytics from './pages/dashboard/organizer/Analytics'
 import OrganizerSettings from './pages/dashboard/organizer/Settings'
+import OrganizerPromoters from './pages/dashboard/organizer/Promoters'
 import PromoterTasks from './pages/dashboard/promoter/Tasks'
 import PromoterProfile from './pages/dashboard/promoter/Profile'
 import PromoterSettings from './pages/dashboard/promoter/Settings'
 
 const theme = extendTheme({
+  config: {
+    initialColorMode: 'light',
+    useSystemColorMode: false,
+  },
   colors: {
     brand: {
       50: '#e3f2fd',
@@ -38,9 +43,11 @@ const theme = extendTheme({
     body: 'Inter, sans-serif',
   },
   styles: {
-    global: {
+    global: (props) => ({
       'html, body': {
         scrollBehavior: 'smooth',
+        bg: props.colorMode === 'light' ? 'gray.50' : 'gray.900',
+        color: props.colorMode === 'light' ? 'gray.800' : 'whiteAlpha.900',
       },
       '#root': {
         minHeight: '100vh',
@@ -51,13 +58,14 @@ const theme = extendTheme({
         flex: '1 0 auto',
         paddingTop: '64px',
       },
-    },
+    }),
   },
 })
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <Router>
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Navbar />
@@ -76,6 +84,7 @@ function App() {
                 <Route path="/dashboard/organizer/profile" element={<OrganizerProfile />} />
                 <Route path="/dashboard/organizer/analytics" element={<OrganizerAnalytics />} />
                 <Route path="/dashboard/organizer/settings" element={<OrganizerSettings />} />
+                <Route path="/dashboard/organizer/promoters" element={<OrganizerPromoters />} />
                 
                 {/* Rotas do Divulgador */}
                 <Route path="/dashboard/promoter" element={<DashboardPromoter />} />

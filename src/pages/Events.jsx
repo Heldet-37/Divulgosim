@@ -11,7 +11,11 @@ import {
   useColorModeValue,
   Text,
   VStack,
+  Stack,
+  InputGroup,
+  InputLeftElement,
 } from '@chakra-ui/react'
+import { FaSearch } from 'react-icons/fa'
 import PageTransition from '../components/layout/PageTransition'
 import EventCard from '../components/events/EventCard'
 import EventDetailsModal from '../components/events/EventDetailsModal'
@@ -101,29 +105,46 @@ function Events() {
             <Heading>Eventos Disponíveis</Heading>
             
             <Box bg={bgColor} p={6} borderRadius="lg" border="1px" borderColor={borderColor}>
-              <HStack spacing={4}>
-                <Input
-                  placeholder="Buscar eventos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+              <Stack
+                direction={{ base: 'column', md: 'row' }}
+                spacing={4}
+                w="100%"
+              >
+                <InputGroup flex="1">
+                  <InputLeftElement pointerEvents="none">
+                    <FaSearch color="gray.300" />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Buscar eventos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
                 <Select 
                   value={filter} 
                   onChange={(e) => setFilter(e.target.value)}
-                  minW="200px"
+                  minW={{ base: "100%", md: "200px" }}
                 >
                   <option value="all">Todos os eventos</option>
                   <option value="upcoming">Próximos eventos</option>
                   <option value="featured">Em destaque</option>
                 </Select>
-                <Button colorScheme="blue" px={8} onClick={handleSearch}>
+                <Button 
+                  colorScheme="blue" 
+                  px={8} 
+                  onClick={handleSearch}
+                  w={{ base: "100%", md: "auto" }}
+                >
                   Buscar
                 </Button>
-              </HStack>
+              </Stack>
             </Box>
 
             {filteredEvents.length > 0 ? (
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+              <SimpleGrid 
+                columns={{ base: 1, md: 2, lg: 3 }} 
+                spacing={8}
+              >
                 {filteredEvents.map(event => (
                   <EventCard 
                     key={event.id} 

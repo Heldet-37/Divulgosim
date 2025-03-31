@@ -24,6 +24,7 @@ import {
 import { HamburgerIcon, CloseIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
+import ThemeToggle from './ThemeToggle'
 
 const MotionBox = motion(Box)
 
@@ -127,7 +128,6 @@ function Navbar() {
     if (userType === 'promoter') {
       return (
         <>
-          <NavLink to="/eventos">Explorar Eventos</NavLink>
           <NavLink to="/dashboard/promoter">Meus Eventos</NavLink>
           <NavLink to="/dashboard/promoter/tasks">Minhas Tarefas</NavLink>
         </>
@@ -192,6 +192,8 @@ function Navbar() {
           </HStack>
 
           <Flex alignItems="center" gap={4}>
+            <ThemeToggle />
+            
             <IconButton
               size="md"
               icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
