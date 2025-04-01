@@ -33,8 +33,9 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   ModalCloseButton,
+  useBreakpointValue,
+  useToast,
 } from '@chakra-ui/react'
 import { FaCalendarAlt, FaUsers, FaChartLine, FaBullhorn } from 'react-icons/fa'
 import PageTransition from '../../components/layout/PageTransition'
@@ -42,7 +43,10 @@ import EventForm from '../../components/events/EventForm'
 
 function DashboardOrganizer() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [events] = useState([
+  const modalSize = useBreakpointValue({ base: "full", md: "xl" })
+  const toast = useToast()
+  
+  const [events, setEvents] = useState([
     {
       id: 1,
       name: 'Festival de Música',
@@ -54,6 +58,10 @@ function DashboardOrganizer() {
       revenue: 2500.0,
       ticketsSold: 150,
       totalTickets: 500,
+      description: 'Um grande festival com diversos artistas',
+      location: 'Parque da Cidade',
+      category: 'music',
+      value: 'R$ 150,00'
     },
     {
       id: 2,
@@ -66,6 +74,10 @@ function DashboardOrganizer() {
       revenue: 1800.0,
       ticketsSold: 80,
       totalTickets: 200,
+      description: 'Evento de tecnologia e inovação',
+      location: 'Centro de Convenções',
+      category: 'technology',
+      value: 'R$ 200,00'
     },
     {
       id: 3,
@@ -78,8 +90,15 @@ function DashboardOrganizer() {
       revenue: 0,
       ticketsSold: 0,
       totalTickets: 30,
+      description: 'Workshop com chefs renomados',
+      location: 'Escola de Gastronomia',
+      category: 'food',
+      value: 'R$ 180,00'
     }
   ])
+
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   const cardBg = useColorModeValue('white', 'gray.700')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
@@ -101,13 +120,62 @@ function DashboardOrganizer() {
   const totalTickets = events.reduce((sum, event) => sum + event.totalTickets, 0)
 
   const handleCreateEvent = (eventData) => {
-    console.log('Novo evento:', eventData)
+    const newEvent = {
+      id: events.length + 1,
+      ...eventData,
+      status: 'draft',
+      totalDivulgadores: 0,
+      completedTasks: 0,
+      totalTasks: 0,
+      revenue: 0,
+      ticketsSold: 0,
+      totalTickets: 0
+    }
+    setEvents([...events, newEvent])
+    toast({
+      title: 'Evento criado com sucesso!',
+      description: 'O evento foi adicionado à sua lista.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    })
+    onClose()
+  }
+
+  const handleEditEvent = (event) => {
+    setSelectedEvent(event)
+    setIsEditing(true)
+    onOpen()
+  }
+
+  const handleUpdateEvent = (updatedEventData) => {
+    const updatedEvents = events.map(event => 
+      event.id === selectedEvent.id 
+        ? { ...event, ...updatedEventData }
+        : event
+    )
+    setEvents(updatedEvents)
+    toast({
+      title: 'Evento atualizado com sucesso!',
+      description: 'As alterações foram salvas.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    })
+    setSelectedEvent(null)
+    setIsEditing(false)
+    onClose()
+  }
+
+  const handleModalClose = () => {
+    setSelectedEvent(null)
+    setIsEditing(false)
     onClose()
   }
 
   return (
     <PageTransition>
-      <Box minH="100vh" py={8} px={4}>
+      <Box minH="100vh" py={8}>
         <Container maxW="1400px">
           <VStack spacing={8} align="stretch">
             {/* Welcome Section */}
@@ -119,7 +187,20 @@ function DashboardOrganizer() {
                 </Text>
               </Box>
               <HStack spacing={4}>
-                <Button colorScheme="blue" leftIcon={<FaCalendarAlt />} onClick={onOpen}>
+                <Button 
+                  colorScheme="blue" 
+                  leftIcon={<FaCalendarAlt />} 
+                  onClick={() => {
+                    setIsEditing(false)
+                    onOpen()
+                  }}
+                  size={{ base: 'sm', md: 'md' }}
+                  px={6}
+                  _hover={{
+                    transform: 'translateY(-1px)',
+                    boxShadow: 'lg',
+                  }}
+                >
                   Criar Novo Evento
                 </Button>
                 <Avatar 
@@ -190,7 +271,7 @@ function DashboardOrganizer() {
               <CardHeader>
                 <Heading size="md">Seus Eventos</Heading>
               </CardHeader>
-              <CardBody>
+              <CardBody overflowX="auto">
                 <Table variant="simple">
                   <Thead>
                     <Tr>
@@ -233,7 +314,11 @@ function DashboardOrganizer() {
                         <Td isNumeric>R$ {event.revenue.toFixed(2)}</Td>
                         <Td>
                           <HStack spacing={2}>
-                            <Button size="sm" colorScheme="blue">
+                            <Button 
+                              size="sm" 
+                              colorScheme="blue"
+                              onClick={() => handleEditEvent(event)}
+                            >
                               Editar
                             </Button>
                             <Button size="sm" variant="ghost">
@@ -354,14 +439,26 @@ function DashboardOrganizer() {
         </Container>
       </Box>
 
-      {/* Create Event Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Criar Novo Evento</ModalHeader>
+      {/* Create/Edit Event Modal */}
+      <Modal 
+        isOpen={isOpen} 
+        onClose={handleModalClose}
+        size={modalSize}
+        isCentered
+      >
+        <ModalOverlay 
+          bg="blackAlpha.300"
+          backdropFilter="blur(10px)"
+        />
+        <ModalContent mx={4}>
+          <ModalHeader>{isEditing ? 'Editar Evento' : 'Criar Novo Evento'}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            <EventForm onSubmit={handleCreateEvent} onClose={onClose} />
+          <ModalBody pb={6}>
+            <EventForm 
+              onSubmit={isEditing ? handleUpdateEvent : handleCreateEvent}
+              onClose={handleModalClose}
+              initialData={selectedEvent}
+            />
           </ModalBody>
         </ModalContent>
       </Modal>

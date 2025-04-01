@@ -69,14 +69,16 @@ function Navbar() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('touchstart', handleClickOutside)
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+    }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('touchstart', handleClickOutside)
     }
-  }, [onClose])
+  }, [isOpen, onClose])
 
   const isActive = (path) => location.pathname === path
 
@@ -206,7 +208,7 @@ function Navbar() {
             />
             
             {isAuthenticated ? (
-              <HStack spacing={3}>
+              <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
                 <Menu>
                   <MenuButton
                     as={Button}
@@ -291,7 +293,7 @@ function Navbar() {
             >
               <Stack as="nav" spacing={1}>
                 {getNavLinks()}
-                {!isAuthenticated && (
+                {!isAuthenticated ? (
                   <>
                     <Divider my={2} />
                     <NavLink to="/login">Login</NavLink>
@@ -307,6 +309,19 @@ function Navbar() {
                     >
                       Começar Agora
                     </Button>
+                  </>
+                ) : (
+                  <>
+                    <Divider my={2} />
+                    <NavLink to={`/dashboard/${userType}/profile`}>
+                      Meu Perfil
+                    </NavLink>
+                    <NavLink to={`/dashboard/${userType}/settings`}>
+                      Configurações
+                    </NavLink>
+                    <NavLink to="/login">
+                      Sair
+                    </NavLink>
                   </>
                 )}
               </Stack>
